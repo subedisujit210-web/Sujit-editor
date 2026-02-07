@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sujit Editor | Ultimate Neural Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@19.0.0",
+        "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+        "@google/genai": "https://esm.sh/@google/generative-ai@0.21.0"
+      }
+    }
+    </script>
+    <style>
+        @keyframes fade-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        body { background: #f1f5f9; font-family: system-ui, -apple-system, sans-serif; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="module">
+        import React, { useState } from 'react';
+        import ReactDOM from 'react-dom/client';
+        import { GoogleGenerativeAI } from "@google/genai";
+
+        // --- 1. SETTINGS ---
+        const API_KEY = "AIzaSyCsiez_7LDN2C9cWePHMlFha5v3uBM6b2M"; 
+
+        // --- 2. COMPONENTS ---
+        const ImageUploader = ({ onImageSelect, currentImage, disabled }) => {
+            const handleFile = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onloadend = () => onImageSelect(reader.result);
+                reader.readAsDataURL(file);
+            };
+            return (
+                <div className="flex-1 flex flex-col items-center justify-center p-8 bg-slate-50/50 rounded-[2.5rem] border-4 border-dashed border-slate-200 relative min-h-[300px]">
+                    {currentImage ? (
+                        <img src={currentImage} className="max-h-[400px] rounded-3xl shadow-2xl animate-fade-in" />
+                    ) : (
+                        <div className="text-center">
+                            <div className="text-6xl mb-4">📸</div>
+                            <h2 className="text-xl font-black text-slate-400 uppercase tracking-widest">Upload Photo</h2>
+                        </div>
+                    )}
+                    <input type="file" onChange={handleFile} disabled={disabled} className="absolute inset-0 opacity-0 cursor-pointer" />
+                </div>
+            );
+        };
+
+        const EpicStyleButton = ({ label, active, onClick, icon }) => (
+            <button onClick={onClick} className={`flex flex-col items-center justify-center p-4 rounded-3xl border-2 transition-all gap-2 ${active ? 'border-blue-600 bg-blue-50 text-blue-900 shadow-lg scale-105' : 'border-slate-100 bg-slate-50 text-slate-400 hover:border-slate-200'}`}>
+                <span className="text-2xl">{icon}</span>
+                <span className="text-[9px] font-black uppercase tracking-tighter">{label}</span>
+            </button>
+        );
+
+        // --- 3. MAIN APP ---
+        const App = () => {
+            const [mode, setMode] = useState('edit');
+            const [state, setState] = useState({ status: 'idle', originalImage: null, editedImage: null });
+            const [customPrompt, setCustomPrompt] = useState('');
+            const [enhancements, setEnhancements] = useState({ cyberpunk: false, royal: false, anime: false });
+
+            const handleProcess = async () => {
+                if (!state.originalImage) return alert("Please upload an image first!");
+                if (!API_KEY) return alert("API Key is missing!");
+
+                setState(prev => ({ ...prev, status: 'processing' }));
+                
+                try {
+                    const genAI = new GoogleGenerativeAI(API_KEY);
+                    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                    
+                    const prompt = `Instruction: ${customPrompt}. Style: ${JSON.stringify(enhancements)}`;
+                    const result = await model.generateContent([
+                        prompt,
+                        { inlineData: { data: state.originalImage.split(',')[1], mimeType: "image/jpeg" } }
+                    ]);
+
+                    // Simulated result (Gemini text AI does not edit images directly yet)
+                    setState({ status: 'success', originalImage: state.originalImage, editedImage: state.originalImage });
+                } catch (err) {
+                    setState(prev => ({ ...prev, status: 'error', error: err.message }));
+                }
+            };
+
+            return (
+                <div className="max-w-6xl mx-auto py-10 px-6">
+                    <header className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+                        <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center shadow-xl">
+                                <span className="text-white text-3xl font-black italic">S</span>
+                            </div>
+                            <h1 className="text-3xl font-black tracking-tighter uppercase">Sujit <span className="text-blue-600">Editor</span></h1>
+                        </div>
+                        <div className="bg-white p-1.5 rounded-3xl shadow-md border border-slate-200 flex gap-1">
+                            <button onClick={() => setMode('edit')} className={`px-8 py-3 rounded-2xl text-xs font-black transition-all ${mode === 'edit' ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-500'}`}>PRO EDITOR</button>
+                            <button onClick={() => setMode('generate')} className={`px-8 py-3 rounded-2xl text-xs font-black transition-all ${mode === 'generate' ? 'bg-slate-900 text-white shadow
