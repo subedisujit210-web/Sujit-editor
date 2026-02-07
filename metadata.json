@@ -1,0 +1,5 @@
+{
+  "name": "Sujit Editor",
+  "description": "An advanced image editing application that uses Gemini AI to remove background obstructions, modify facial expressions, and enhance cityscapes.",
+  "requestFramePermissions": []
+}
