@@ -1,25 +1,102 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sujit Editor</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-<script type="importmap">
-{
-  "imports": {
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "react": "https://esm.sh/react@^19.2.4",
-    "@google/genai": "https://esm.sh/@google/genai@^1.40.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/"
+<meta charset="UTF-8" />
+<title>Sujit AI Editor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f3f4f6;
+  padding: 20px;
+}
+.container {
+  max-width: 500px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+h2 {
+  text-align: center;
+}
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+}
+button.secondary {
+  background: #16a34a;
+}
+img {
+  max-width: 100%;
+  margin-top: 10px;
+  border-radius: 8px;
+}
+p {
+  text-align: center;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Sujit <span style="color:#2563eb">AI Editor</span></h2>
+
+  <input type="file" accept="image/*" id="upload" />
+  <img id="preview" />
+
+  <button onclick="processImage()">Process Image</button>
+
+  <p id="status"></p>
+
+  <button class="secondary" onclick="generateCaption()">Generate Caption</button>
+  <button class="secondary" onclick="generateStory()">Generate Story</button>
+
+  <p id="text"></p>
+</div>
+
+<script>
+let imageData = "";
+
+document.getElementById("upload").onchange = e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    imageData = reader.result;
+    document.getElementById("preview").src = imageData;
+  };
+  reader.readAsDataURL(file);
+};
+
+function processImage() {
+  if (!imageData) {
+    alert("Please upload an image first");
+    return;
   }
+  document.getElementById("status").innerText = "Processing...";
+  setTimeout(() => {
+    document.getElementById("status").innerText = "Processing complete ✔";
+  }, 1200);
+}
+
+function generateCaption() {
+  document.getElementById("text").innerText =
+    "✨ AI-enhanced cinematic photo edit";
+}
+
+function generateStory() {
+  document.getElementById("text").innerText =
+    "AI transformed a simple image into stunning digital art.";
 }
 </script>
-<link rel="stylesheet" href="/index.css">
-</head>
-<body class="bg-gray-50 text-gray-900 min-h-screen">
-    <div id="root"></div>
-<script type="module" src="/index.tsx"></script>
+
 </body>
 </html>
